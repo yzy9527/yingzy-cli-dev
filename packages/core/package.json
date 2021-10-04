@@ -1,0 +1,22 @@
+{
+  "name": "@yingzy-cli-dev/core",
+  "version": "1.0.0",
+  "description": "yingzy-cli-dev core",
+  "author": "yzy9527 <cyzy9527@163.com>",
+  "homepage": "",
+  "license": "ISC",
+  "main": "lib/core.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
