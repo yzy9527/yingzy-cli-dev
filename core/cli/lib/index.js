@@ -4,5 +4,5 @@ module.exports = core;
 
 function core() {
     // TODO
-    //1234
+    console.log('exec core0')
 }
