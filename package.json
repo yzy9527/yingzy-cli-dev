@@ -2,7 +2,7 @@
   "name": "yingzy-cli-dev",
   "version": "1.0.0",
   "description": "yingzy-cli dev",
-  "main": "index.js",
+  "main": "core/cli/bin/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -11,5 +11,8 @@
   "license": "ISC",
   "devDependencies": {
     "lerna": "^4.0.0"
+  },
+  "dependencies": {
+    "import-local": "^3.0.3"
   }
 }

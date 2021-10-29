@@ -1,11 +1,14 @@
 {
   "name": "@yingzy-cli-dev/core",
-  "version": "1.0.8",
+  "version": "1.0.0",
   "description": "yingzy-cli-dev core",
   "author": "yzy9527 <cyzy9527@163.com>",
   "homepage": "",
   "license": "ISC",
   "main": "lib/core.js",
+  "bin": {
+    "yingzy-cli-dev": "bin/index.js"
+  },
   "directories": {
     "lib": "lib",
     "test": "__tests__"
@@ -13,6 +16,9 @@
   "files": [
     "lib"
   ],
+  "dependencies": {
+    "@yingzy-cli-dev/utils": "file:../../utils/utils"
+  },
   "scripts": {
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
