@@ -31,14 +31,14 @@ function checkEnv() {
     //加载环境变量
     const dotenv = require('dotenv')
     const dotenvPath = path.resolve(userHome,'.env')
+    console.log('dd',pathExists(dotenvPath),dotenvPath)
     if(pathExists(dotenvPath)){
-        dotenv.config({
+       dotenv.config({
             path:dotenvPath
         })
     }
-    // console.log('ddd',path.resolve(userHome,'.env'))
-    const config = createDefaultConfig()
-    log.verbose('环境变量',config)
+    createDefaultConfig()
+    log.verbose('环境变量',process.env.CLI_HOME_PATH)
 }
 
 function createDefaultConfig() {
@@ -51,7 +51,7 @@ function createDefaultConfig() {
     }else{
         cliConfig['cliHome'] = path.join(userHome,constant.DEFAULT_CLI_HOME)
     }
-    return cliConfig
+    process.env.CLI_HOME_PATH = cliConfig.cliHome
 }
 
 function checkInputArgs() {
