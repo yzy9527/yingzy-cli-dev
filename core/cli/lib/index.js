@@ -2,7 +2,7 @@
 
 module.exports = core
 
-let  args,config;
+let args
 
 const path = require('path')
 const semver = require('semver')
@@ -12,9 +12,8 @@ const log = require('@yingzy-cli-dev/log')
 const userHome = require('user-home')
 const pathExists = require('path-exists').sync
 const constant = require('./const')
-const dotenv = require("dotenv")
 
-function core() {
+async function core() {
     try {
         checkPkgVersion()
         checkNodeVersion()
@@ -22,34 +21,49 @@ function core() {
         checkUserHome()
         checkInputArgs()
         checkEnv()
+        await checkGlobalUpdate()
     } catch (e) {
         log.error(e.message)
+    }
+}
+
+async function checkGlobalUpdate() {
+    //1. 获取当前版本号和模块名
+    const currentVersion = pkg.version
+    const npmName = pkg.name
+    //2. 调用npm api,获取所有版本号
+    const {getNpmSemverVersion} = require('@yingzy-cli-dev/get-npm-info')
+    //3.对比版本号，过滤版本号
+    const lastVersion = await getNpmSemverVersion(currentVersion,npmName)
+    if(lastVersion && semver.gt(lastVersion,currentVersion)){
+        log.warn('更新提示',colors.yellow(`请手动更新${npmName}，当前版本${currentVersion}，最新版本${lastVersion}
+        更新命令：npm install -g ${npmName}`))
     }
 }
 
 function checkEnv() {
     //加载环境变量
     const dotenv = require('dotenv')
-    const dotenvPath = path.resolve(userHome,'.env')
-    console.log('dd',pathExists(dotenvPath),dotenvPath)
-    if(pathExists(dotenvPath)){
-       dotenv.config({
-            path:dotenvPath
+    const dotenvPath = path.resolve(userHome, '.env')
+    console.log('dd', pathExists(dotenvPath), dotenvPath)
+    if (pathExists(dotenvPath)) {
+        dotenv.config({
+            path: dotenvPath
         })
     }
     createDefaultConfig()
-    log.verbose('环境变量',process.env.CLI_HOME_PATH)
+    log.verbose('环境变量', process.env.CLI_HOME_PATH)
 }
 
 function createDefaultConfig() {
     // 设置默认环境变量
     const cliConfig = {
-        home:userHome,
+        home: userHome
     }
-    if(process.env.CLI_HOME){
-        cliConfig['cliHome'] = path.join(userHome,process.env.CLI_HOME)
-    }else{
-        cliConfig['cliHome'] = path.join(userHome,constant.DEFAULT_CLI_HOME)
+    if (process.env.CLI_HOME) {
+        cliConfig['cliHome'] = path.join(userHome, process.env.CLI_HOME)
+    } else {
+        cliConfig['cliHome'] = path.join(userHome, constant.DEFAULT_CLI_HOME)
     }
     process.env.CLI_HOME_PATH = cliConfig.cliHome
 }
@@ -63,9 +77,9 @@ function checkInputArgs() {
 
 function checkArgs() {
     //检查debug
-    if(args.debug){
+    if (args.debug) {
         process.env.LOG_LEVEL = 'verbose'
-    }else{
+    } else {
         process.env.LOG_LEVEL = 'info'
     }
     //此处修改必须早于const log = require('@yingzy-cli-dev/log')
