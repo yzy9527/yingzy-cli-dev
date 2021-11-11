@@ -6,11 +6,13 @@ const path = require('path');
 const semver = require('semver');
 const colors = require('colors/safe');
 const commander = require('commander');
-const pkg = require('../package.json');
-const log = require('@yingzy-cli-dev/log');
 const userHome = require('user-home');
 const pathExists = require('path-exists').sync;
+const log = require('@yingzy-cli-dev/log');
+const init = require('@yingzy-cli-dev/init');
+
 const constant = require('./const');
+const pkg = require('../package.json');
 
 let args;
 
@@ -23,7 +25,7 @@ async function core() {
         checkNodeVersion();
         checkRoot();
         checkUserHome();
-        checkInputArgs();
+        // checkInputArgs();
         checkEnv();
         await checkGlobalUpdate();
         registerCommand();
@@ -34,9 +36,39 @@ async function core() {
 
 function registerCommand() {
     program
-        .name(Object.keys[pkg.bin[0]])
+        .name(Object.keys(pkg.bin)[0])
         .usage('<command> [options]')
-        .version(pkg.version);
+        .version(pkg.version)
+        .option('-d, --debug', '是否开启调试模式', false);
+
+    program
+        .command('init [projectName]')
+        .option('-f,--force', '是否强制初始化')
+        .action(init);
+
+    // 开启debug模式
+    program.on('option:debug', function () {
+        if (program.opts().debug) {
+            process.env.LOG_LEVEL = 'verbose';
+        } else {
+            process.env.LOG_LEVEL = 'info';
+        }
+        log.level = process.env.LOG_LEVEL;
+    });
+    //未知命令监听
+    program.on('command:*', function (obj) {
+        const availableCommands = program.commands.map(cmd => cmd.name);
+        console.log(colors.red('未知的命令：' + obj[0]));
+        if (availableCommands.length > 0) {
+            console.log(colors.red('可用命令：' + availableCommands.join(',')));
+        }
+    });
+
+    if (program.args && program.args.length < 1) {
+        // node yingzy-cli [command].未知命令
+        program.outputHelp();
+        console.log();
+    }
     program.parse(process.argv);
 }
 
@@ -58,7 +90,7 @@ function checkEnv() {
     //加载环境变量
     const dotenv = require('dotenv');
     const dotenvPath = path.resolve(userHome, '.env');
-    console.log('dd', pathExists(dotenvPath), dotenvPath);
+    // console.log('dd', pathExists(dotenvPath), dotenvPath);
     if (pathExists(dotenvPath)) {
         dotenv.config({
             path: dotenvPath
@@ -115,13 +147,11 @@ function checkRoot() {
 
 function checkPkgVersion() {
     // 获取脚手架版本号
-    console.log(pkg.version);
     log.notice('cli', pkg.version);
 }
 
 function checkNodeVersion() {
     //获取当前node版本号
-    console.log(process.version);
     const currentVersion = process.version;
     const lowestVersion = constant.LOWEST_NODE_VERSION;
     if (!semver.gte(currentVersion, lowestVersion)) {
