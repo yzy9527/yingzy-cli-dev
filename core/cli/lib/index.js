@@ -10,6 +10,7 @@ const userHome = require('user-home');
 const pathExists = require('path-exists').sync;
 const log = require('@yingzy-cli-dev/log');
 const init = require('@yingzy-cli-dev/init');
+const exec = require('@yingzy-cli-dev/exec');
 
 const constant = require('./const');
 const pkg = require('../package.json');
@@ -21,13 +22,7 @@ const program = new commander.Command();
 
 async function core() {
     try {
-        checkPkgVersion();
-        checkNodeVersion();
-        checkRoot();
-        checkUserHome();
-        // checkInputArgs();
-        checkEnv();
-        await checkGlobalUpdate();
+        await prepare();
         registerCommand();
     } catch (e) {
         log.error(e.message);
@@ -39,12 +34,13 @@ function registerCommand() {
         .name(Object.keys(pkg.bin)[0])
         .usage('<command> [options]')
         .version(pkg.version)
-        .option('-d, --debug', '是否开启调试模式', false);
+        .option('-d, --debug', '是否开启调试模式', false)
+        .option('-tp, --targetPath <targetPath>', '是否指定本地文件调试', '');
 
     program
         .command('init [projectName]')
-        .option('-f,--force', '是否强制初始化')
-        .action(init);
+        .option('-f, --force', '是否强制初始化')
+        .action(exec);
 
     // 开启debug模式
     program.on('option:debug', function () {
@@ -55,6 +51,13 @@ function registerCommand() {
         }
         log.level = process.env.LOG_LEVEL;
     });
+
+    //指定targetPath
+    program.on('option:targetPath', function () {
+        // 会优先命令init执行
+        process.env.CLI_TARGET_PATH = program.opts().targetPath;
+    });
+
     //未知命令监听
     program.on('command:*', function (obj) {
         const availableCommands = program.commands.map(cmd => cmd.name);
@@ -71,6 +74,17 @@ function registerCommand() {
     }
     program.parse(process.argv);
 }
+
+async function prepare() {
+    checkPkgVersion();
+    checkNodeVersion();
+    checkRoot();
+    checkUserHome();
+    // checkInputArgs();
+    checkEnv();
+    await checkGlobalUpdate();
+}
+
 
 async function checkGlobalUpdate() {
     //1. 获取当前版本号和模块名
@@ -97,7 +111,6 @@ function checkEnv() {
         });
     }
     createDefaultConfig();
-    log.verbose('环境变量', process.env.CLI_HOME_PATH);
 }
 
 function createDefaultConfig() {
@@ -111,25 +124,6 @@ function createDefaultConfig() {
         cliConfig['cliHome'] = path.join(userHome, constant.DEFAULT_CLI_HOME);
     }
     process.env.CLI_HOME_PATH = cliConfig.cliHome;
-}
-
-function checkInputArgs() {
-    //获取参数，如debug
-    const minimist = require('minimist');
-    args = minimist(process.argv.slice(2));
-    checkArgs();
-}
-
-function checkArgs() {
-    //检查debug
-    if (args.debug) {
-        process.env.LOG_LEVEL = 'verbose';
-    } else {
-        process.env.LOG_LEVEL = 'info';
-    }
-    //此处修改必须早于const log = require('@yingzy-cli-dev/log')
-    //或者确定之后再次修改
-    log.level = process.env.LOG_LEVEL;
 }
 
 function checkUserHome() {

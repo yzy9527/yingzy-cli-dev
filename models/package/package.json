@@ -1,0 +1,32 @@
+{
+  "name": "@yingzy-cli-dev/package",
+  "version": "1.0.9",
+  "description": "yingzy-cli-dev npm packages",
+  "author": "yzy9527 <cyzy9527@163.com>",
+  "homepage": "https://github.com/yzy9527/yingzy-cli-dev#readme",
+  "license": "ISC",
+  "main": "lib/index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yzy9527/yingzy-cli-dev.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/yzy9527/yingzy-cli-dev/issues"
+  },
+  "dependencies": {
+    "@yingzy-cli-dev/utils": "file:../../utils/utils"
+  }
+}
