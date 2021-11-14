@@ -2,7 +2,6 @@
   "name": "yingzy-cli-dev",
   "version": "1.0.0",
   "description": "yingzy-cli dev",
-  "main": "core/cli/bin/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

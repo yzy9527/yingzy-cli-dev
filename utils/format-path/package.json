@@ -1,7 +1,7 @@
 {
-  "name": "@yingzy-cli-dev/package",
-  "version": "1.0.9",
-  "description": "yingzy-cli-dev npm packages",
+  "name": "@yingzy-cli-dev/format-path",
+  "version": "1.0.0",
+  "description": "format path",
   "author": "yzy9527 <cyzy9527@163.com>",
   "homepage": "https://github.com/yzy9527/yingzy-cli-dev#readme",
   "license": "ISC",
@@ -25,12 +25,5 @@
   },
   "bugs": {
     "url": "https://github.com/yzy9527/yingzy-cli-dev/issues"
-  },
-  "dependencies": {
-    "@yingzy-cli-dev/format-path": "file:../../utils/format-path",
-    "@yingzy-cli-dev/get-npm-info": "file:../../utils/get-npm-info",
-    "@yingzy-cli-dev/utils": "file:../../utils/utils",
-    "npminstall": "^4.10.0",
-    "pkg-dir": "^5.0.0"
   }
 }
