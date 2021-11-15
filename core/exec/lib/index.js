@@ -5,7 +5,7 @@ const log = require('@yingzy-cli-dev/log');
 const path = require('path');
 
 const SETTINGS = {
-    init: 'yingzy-cli-dev/init'
+    init: 'yingzy-test'
 };
 
 const CACHE_DIR = 'dependencies';
@@ -19,7 +19,6 @@ async function exec() {
     log.verbose('homePath', homePath);
 
     const cmdObj = arguments[arguments.length - 1];
-    console.log(cmdObj.opts().force);
     const cmdName = cmdObj.name();
     const packageName = SETTINGS[cmdName];
     const packageVersion = 'latest';
@@ -37,8 +36,10 @@ async function exec() {
             packageName,
             packageVersion
         });
-        if (pkg.exists()) {
+        if (await pkg.exists()) {
             //更新
+            console.log('更新package');
+            await pkg.update();
         } else {
             //安装
             await pkg.install();
