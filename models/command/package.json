@@ -1,11 +1,11 @@
 {
-  "name": "@yingzy-cli-dev/init",
+  "name": "command",
   "version": "1.0.0",
-  "description": "yingzy-cli-dev init",
+  "description": "yingzy-cli-dev command",
   "author": "yzy9527 <cyzy9527@163.com>",
   "homepage": "https://github.com/yzy9527/yingzy-cli-dev#readme",
   "license": "ISC",
-  "main": "lib/index.js",
+  "main": "lib/index",
   "directories": {
     "lib": "lib",
     "test": "__tests__"
@@ -13,9 +13,6 @@
   "files": [
     "lib"
   ],
-  "publishConfig": {
-    "access": "public"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/yzy9527/yingzy-cli-dev.git"
@@ -27,7 +24,8 @@
     "url": "https://github.com/yzy9527/yingzy-cli-dev/issues"
   },
   "dependencies": {
-    "@yingzy-cli-dev/command": "file:../../models/command",
-    "@yingzy-cli-dev/log": "file:../../utils/log"
+    "@yingzy-cli-dev/log": "file:../../utils/log",
+    "colors": "^1.4.0",
+    "semver": "^7.3.5"
   }
 }

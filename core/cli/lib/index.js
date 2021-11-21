@@ -9,7 +9,6 @@ const commander = require('commander');
 const userHome = require('user-home');
 const pathExists = require('path-exists').sync;
 const log = require('@yingzy-cli-dev/log');
-const init = require('@yingzy-cli-dev/init');
 const exec = require('@yingzy-cli-dev/exec');
 
 const constant = require('./const');
@@ -63,14 +62,15 @@ function registerCommand() {
 
     //未知命令监听
     program.on('command:*', function (obj) {
-        const availableCommands = program.commands.map(cmd => cmd.name);
+        const availableCommands = program.commands.map(cmd => cmd.name());
         console.log(colors.red('未知的命令：' + obj[0]));
         if (availableCommands.length > 0) {
-            console.log(colors.red('可用命令：' + availableCommands.join(',')));
+            console.log(colors.green('可用命令：' + availableCommands.join(',')));
         }
     });
-
-    if (program.args && program.args.length < 1) {
+    //program.args
+    const commandName = program.commands.map(cmd => cmd.name());
+    if (commandName && commandName.length < 1) {
         // node yingzy-cli [command].未知命令
         program.outputHelp();
         console.log();
@@ -80,7 +80,6 @@ function registerCommand() {
 
 async function prepare() {
     checkPkgVersion();
-    checkNodeVersion();
     checkRoot();
     checkUserHome();
     // checkInputArgs();
@@ -147,12 +146,5 @@ function checkPkgVersion() {
     log.notice('cli', pkg.version);
 }
 
-function checkNodeVersion() {
-    //获取当前node版本号
-    const currentVersion = process.version;
-    const lowestVersion = constant.LOWEST_NODE_VERSION;
-    if (!semver.gte(currentVersion, lowestVersion)) {
-        throw new Error(colors.red(`yingzy-cli 需要安装 v${lowestVersion}以上版本的 Node.js`));
-    }
-}
+
 
