@@ -69,22 +69,30 @@ async function exec() {
             });
             args[args.length - 1] = o;
             const code = `require('${rootFile}').call(null, ${JSON.stringify(args)})`;
-            const child = cp.spawn('node', ['-e', code], {
+            const child = spawn('node', ['-e', code], {
                 cwd: process.cwd(),
-                stdio: 'inherit' //默认为pipe,需要通过child.stdout.on监听；使用inhert直接与父进程进行绑定，将输入、输出、直接进行打印
+                stdio: 'inherit'
             });
-            // child.stdout.on('data')
             child.on('error', e => {
                 log.error(e.message);
                 process.exit(1);//异常退出,e为正常退出
             });
             child.on('exit', e => {
-                log.verbose('命令执行成功' + e);
+                log.verbose('命令执行成功:' + e);
             });
         } catch (e) {
             log.error(e.message);
         }
     }
+}
+
+function spawn(command, args, options) {
+    // win cp.spawn('cmd',['/c','node','-e',code]) // /c表示静默执行
+    const win32 = process.platform === 'win32';
+
+    const cmd = win32 ? 'cmd' : command;
+    const cmdArgs = win32 ? ['/c'].concat(command, args) : args;
+    return cp.spawn(cmd, cmdArgs, options || {});
 }
 
 module.exports = exec;
