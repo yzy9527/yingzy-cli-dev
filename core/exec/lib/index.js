@@ -1,5 +1,6 @@
 'use strict';
 
+const cp = require('child_process');
 const Package = require('@yingzy-cli-dev/package');
 const log = require('@yingzy-cli-dev/log');
 const path = require('path');
@@ -55,7 +56,31 @@ async function exec() {
     if (rootFile) {
         try {
             //在当前进程中调用
-            require(rootFile).call(null, Array.from(arguments));
+            // require(rootFile).call(null, Array.from(arguments));
+            const args = Array.from(arguments);
+            const cmd = args[args.length - 1];
+            const o = Object.create(null);
+            o._opts = cmd.opts(); //SON.stringify不能处理函数
+            Object.keys(cmd).forEach(key => {
+                if (cmd.hasOwnProperty(key) && (!key.startsWith('_')) &&
+                    key !== 'parent') {
+                    o[key] = cmd[key];
+                }
+            });
+            args[args.length - 1] = o;
+            const code = `require('${rootFile}').call(null, ${JSON.stringify(args)})`;
+            const child = cp.spawn('node', ['-e', code], {
+                cwd: process.cwd(),
+                stdio: 'inherit' //默认为pipe,需要通过child.stdout.on监听；使用inhert直接与父进程进行绑定，将输入、输出、直接进行打印
+            });
+            // child.stdout.on('data')
+            child.on('error', e => {
+                log.error(e.message);
+                process.exit(1);//异常退出,e为正常退出
+            });
+            child.on('exit', e => {
+                log.verbose('命令执行成功' + e);
+            });
         } catch (e) {
             log.error(e.message);
         }

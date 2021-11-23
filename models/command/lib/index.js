@@ -33,6 +33,7 @@ class Command {
 
     initArgs() {
         this._cmd = this._argv[this._argv.length - 1];
+        this._cmd.opts = (_ => this._cmd.opts);
         this._argv = this._argv.slice(0, this._argv.length - 1);
     }
 
