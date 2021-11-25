@@ -6,18 +6,16 @@ const path = require('path');
 const semver = require('semver');
 const colors = require('colors/safe');
 const commander = require('commander');
-const userHome = require('user-home');
 const pathExists = require('path-exists').sync;
 const log = require('@yingzy-cli-dev/log');
 const exec = require('@yingzy-cli-dev/exec');
+const os = require('os');
 
 const constant = require('./const');
 const pkg = require('../package.json');
-
-let args;
+const userHome = os.homedir();
 
 const program = new commander.Command();
-
 
 async function core() {
     try {
