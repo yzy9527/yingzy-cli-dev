@@ -28,6 +28,8 @@
   },
   "dependencies": {
     "@yingzy-cli-dev/command": "file:../../models/command",
-    "@yingzy-cli-dev/log": "file:../../utils/log"
+    "@yingzy-cli-dev/log": "file:../../utils/log",
+    "fs-extra": "^10.0.0",
+    "inquirer": "^8.2.0"
   }
 }
