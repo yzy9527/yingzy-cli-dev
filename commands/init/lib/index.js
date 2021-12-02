@@ -7,6 +7,8 @@ const sermver = require('semver');
 const Command = require('@yingzy-cli-dev/command');
 const log = require('@yingzy-cli-dev/log');
 
+const getProjectTemplate = require('./getProjectTemplate');
+
 const TYPE_PROJECT = 'project';
 const TYPE_COMPONENT = 'component';
 
@@ -20,13 +22,34 @@ class InitCommand extends Command {
 
     async exec() {
         try {
-            const ret = await this.prepare();
+            const projectInfo = await this.prepare();
+            if (projectInfo) {
+                log.verbose('projectInfo', JSON.stringify(projectInfo));
+                this.projectInfo = projectInfo;
+                //下载模板
+                this.downloadTemplate();
+                // 安装模板
+            }
         } catch (e) {
             log.error(e.message);
         }
     }
 
+    downloadTemplate() {
+        //1.通过项目模板api获取项目模板信息
+        //1.1通过egg.js搭建一套后端系统
+        //1.2通过npm存储模板
+        //1.3将项目模板信息存到mongodb数据库中
+        //1.4通过egg.js获取到mongodb中的数据并且通过api返回
+    }
+
     async prepare() {
+        // 0. 判断项目模板是否存在
+        const template = await getProjectTemplate();
+        this.template = template;
+        if (!template || template.length === 0) {
+            throw Error('项目模板不存在');
+        }
         //1.判断目录是否为空
         const localPath = process.cwd();
         if (!this.isDirEmpty(localPath)) {
@@ -60,7 +83,7 @@ class InitCommand extends Command {
 
     async getProjectInfo() {
         //3.选择性创建项目或文件
-        const projectInfo = {};
+        let projectInfo = {};
         const {type} = await inquirer.prompt({
             type: 'list',
             name: 'type',
@@ -77,7 +100,7 @@ class InitCommand extends Command {
         log.verbose(type);
         if (type === TYPE_PROJECT) {
             //4.获取项目的基本信息
-            const o = await inquirer.prompt([{
+            const project = await inquirer.prompt([{
                 type: 'input',
                 name: 'projectName',
                 default: '',
@@ -99,7 +122,7 @@ class InitCommand extends Command {
             }, {
                 type: 'input',
                 name: 'projectVersion',
-                default: '',
+                default: '1.0.0',
                 message: '请输入项目版本号',
                 validate: function (v) {
                     const done = this.async();
@@ -118,8 +141,17 @@ class InitCommand extends Command {
                         return v;
                     }
                 }
-            }]);
-            console.log(o);
+            }, {
+                type: 'list',
+                name: 'projectTemplate',
+                message: '请选择项目模板',
+                choices: this.createTemplateChoice()
+            }
+            ]);
+            projectInfo = {
+                type,
+                ...project
+            };
         } else if (type === TYPE_COMPONENT) {
 
         }
@@ -131,6 +163,15 @@ class InitCommand extends Command {
         let fileList = fs.readdirSync(localPath);
         fileList = fileList.filter(file => (!file.startsWith('.') && ['node_modules'].indexOf(file) < 0));
         return !fileList || fileList.length <= 0;
+    }
+
+    createTemplateChoice() {
+        return this.template.map(v => (
+            {
+                value: v.npmName,
+                name: v.name
+            }
+        ));
     }
 }
 

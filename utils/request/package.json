@@ -1,7 +1,7 @@
 {
-  "name": "@yingzy-cli-dev/init",
-  "version": "1.0.0",
-  "description": "yingzy-cli-dev init",
+  "name": "@yingzy-cli-dev/request",
+  "version": "1.0.9",
+  "description": "> TODO: description",
   "author": "yzy9527 <cyzy9527@163.com>",
   "homepage": "https://github.com/yzy9527/yingzy-cli-dev#readme",
   "license": "ISC",
@@ -27,11 +27,6 @@
     "url": "https://github.com/yzy9527/yingzy-cli-dev/issues"
   },
   "dependencies": {
-    "@yingzy-cli-dev/command": "file:../../models/command",
-    "@yingzy-cli-dev/log": "file:../../utils/log",
-    "@yingzy-cli-dev/request": "file:../../utils/request",
-    "fs-extra": "^10.0.0",
-    "inquirer": "^8.2.0",
-    "semver": "^7.3.5"
+    "axios": "^0.24.0"
   }
 }

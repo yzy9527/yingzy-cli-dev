@@ -103,8 +103,9 @@ async function checkGlobalUpdate() {
 function checkEnv() {
     //加载环境变量
     const dotenv = require('dotenv');
+    console.log('userHome', userHome);
     const dotenvPath = path.resolve(userHome, '.env');
-    // console.log('dd', pathExists(dotenvPath), dotenvPath);
+    // console.log(pathExists(dotenvPath), dotenvPath);
     if (pathExists(dotenvPath)) {
         dotenv.config({
             path: dotenvPath
