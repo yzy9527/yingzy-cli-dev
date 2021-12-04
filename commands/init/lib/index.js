@@ -3,9 +3,13 @@
 const fs = require('fs');
 const inquirer = require('inquirer');
 const fse = require('fs-extra');
+const path = require('path');
 const sermver = require('semver');
+const userHome = require('user-home');
 const Command = require('@yingzy-cli-dev/command');
 const log = require('@yingzy-cli-dev/log');
+const {spinnerStart, sleep} = require('@yingzy-cli-dev/utils');
+const Package = require('@yingzy-cli-dev/Package');
 
 const getProjectTemplate = require('./getProjectTemplate');
 
@@ -27,7 +31,7 @@ class InitCommand extends Command {
                 log.verbose('projectInfo', JSON.stringify(projectInfo));
                 this.projectInfo = projectInfo;
                 //下载模板
-                this.downloadTemplate();
+                await this.downloadTemplate();
                 // 安装模板
             }
         } catch (e) {
@@ -35,12 +39,42 @@ class InitCommand extends Command {
         }
     }
 
-    downloadTemplate() {
-        //1.通过项目模板api获取项目模板信息
-        //1.1通过egg.js搭建一套后端系统
-        //1.2通过npm存储模板
-        //1.3将项目模板信息存到mongodb数据库中
-        //1.4通过egg.js获取到mongodb中的数据并且通过api返回
+    async downloadTemplate() {
+        const {projectTemplate} = this.projectInfo;
+        const templateInfo = this.template.find(item => item.npmName === projectTemplate);
+        const targetPath = path.resolve(userHome, '.yingzy-cli-dev', 'template');
+        const storeDir = path.resolve(userHome, '.yingzy-cli-dev', 'template', 'node_modules');
+        const {npmName, version} = templateInfo;
+        const templateNpm = new Package({
+            targetPath,
+            storeDir,
+            packageName: npmName,
+            packageVersion: version
+        });
+        if (!await templateNpm.exists()) {
+            const spinner = spinnerStart('正在下载模板...');
+            await sleep();
+            try {
+                //防止version不存在
+                await templateNpm.install();
+                log.success('下载模板成功');
+            } catch (e) {
+                throw e;
+            } finally {
+                spinner.stop(true);
+            }
+        } else {
+            const spinner = spinnerStart('正在更新模板...');
+            await sleep();
+            try {
+                await templateNpm.update();
+                log.success('更新模板成功');
+            } catch (e) {
+                throw e;
+            } finally {
+                spinner.stop(true);
+            }
+        }
     }
 
     async prepare() {
