@@ -1,8 +1,8 @@
 'use strict';
 
-const cp = require('child_process');
 const Package = require('@yingzy-cli-dev/package');
 const log = require('@yingzy-cli-dev/log');
+const {exec: spawn} = require('@yingzy-cli-dev/utils');
 const path = require('path');
 
 const SETTINGS = {
@@ -84,15 +84,6 @@ async function exec() {
             log.error(e.message);
         }
     }
-}
-
-function spawn(command, args, options) {
-    // win cp.spawn('cmd',['/c','node','-e',code]) // /c表示静默执行
-    const win32 = process.platform === 'win32';
-
-    const cmd = win32 ? 'cmd' : command;
-    const cmdArgs = win32 ? ['/c'].concat(command, args) : args;
-    return cp.spawn(cmd, cmdArgs, options || {});
 }
 
 module.exports = exec;
