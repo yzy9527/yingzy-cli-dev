@@ -91,6 +91,8 @@ class Package {
                 }]
             });
             this.packageVersion = latestPackageVersion;
+        } else {
+            this.packageVersion = latestPackageVersion;
         }
     }
 
