@@ -147,7 +147,8 @@ class InitCommand extends Command {
             spinner.stop(true);
             console.log('模板安装成功');
         }
-        const ignore = ['node_modules/**', 'publish/**'];
+        const templateIgnore = this.templateInfo.ignore || [];
+        const ignore = ['**/node_modules/**', ...templateIgnore];
         await this.ejsRender({ignore});
         const {installCommand, startCommand} = this.templateInfo;
         //依赖安装
@@ -255,11 +256,27 @@ class InitCommand extends Command {
             isProjectNameValid = true;
             projectInfo.projectName = this.projectName;
         }
+
+        const {type} = await inquirer.prompt({
+            type: 'list',
+            name: 'type',
+            default: TYPE_PROJECT,
+            message: '请选择初始化类型',
+            choices: [{
+                name: '项目',
+                value: TYPE_PROJECT
+            }, {
+                name: '组件',
+                value: TYPE_COMPONENT
+            }]
+        });
+        const title = type === TYPE_PROJECT ? '项目' : '组件';
+        this.template = this.template.filter(template => template.tag.includes(type));
         const projectNamePrompt = {
             type: 'input',
             name: 'projectName',
             default: '',
-            message: '请输入项目名称',
+            message: `请输入${title}名称`,
             validate: function (v) {
                 const done = this.async();
                 setTimeout(function () {
@@ -282,7 +299,7 @@ class InitCommand extends Command {
             type: 'input',
             name: 'projectVersion',
             default: '1.0.0',
-            message: '请输入项目版本号',
+            message: `请输入${title}版本号`,
             validate: function (v) {
                 const done = this.async();
                 setTimeout(function () {
@@ -303,21 +320,8 @@ class InitCommand extends Command {
         }, {
             type: 'list',
             name: 'projectTemplate',
-            message: '请选择项目模板',
+            message: `请选择${title}模板`,
             choices: this.createTemplateChoice()
-        });
-        const {type} = await inquirer.prompt({
-            type: 'list',
-            name: 'type',
-            default: TYPE_PROJECT,
-            message: '请选择初始化类型',
-            choices: [{
-                name: '项目',
-                value: TYPE_PROJECT
-            }, {
-                name: '组件',
-                value: TYPE_COMPONENT
-            }]
         });
         log.verbose(type);
         if (type === TYPE_PROJECT) {
@@ -329,6 +333,29 @@ class InitCommand extends Command {
                 ...project
             };
         } else if (type === TYPE_COMPONENT) {
+            const descriptionPrompt = {
+                type: 'input',
+                name: 'componentDescription',
+                default: '',
+                message: '请输入组件描述信息',
+                validate: function (v) {
+                    const done = this.async();
+                    setTimeout(function () {
+                        if (!v) {
+                            done('请输入组件描述信息');
+                            return;
+                        }
+                        done(null, true);
+                    }, 0);
+                }
+            };
+            projectPrompt.push(descriptionPrompt);
+            const component = await inquirer.prompt(projectPrompt);
+            projectInfo = {
+                ...projectInfo,
+                type,
+                ...component
+            };
 
         }
         //生成className
@@ -338,6 +365,9 @@ class InitCommand extends Command {
         }
         if (projectInfo.projectVersion) {
             projectInfo.version = projectInfo.projectVersion;
+        }
+        if (projectInfo.componentDescription) {
+            projectInfo.description = projectInfo.componentDescription;
         }
         // return 基本信息
         return projectInfo;
