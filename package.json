@@ -1,5 +1,12 @@
 {
   "name": "yingzy-cli-dev",
+  "private": true,
+  "workspaces": [
+    "core/*",
+    "commands/*",
+    "models/*",
+    "utils/*"
+  ],
   "version": "1.0.0",
   "description": "yingzy-cli dev",
   "scripts": {
@@ -9,7 +16,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "lerna": "3.22.1"
+    "lerna": "^4.0.0"
   },
   "dependencies": {
     "import-local": "^3.0.3"
