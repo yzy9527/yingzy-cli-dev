@@ -26,8 +26,8 @@
     "dotenv": "^10.0.0",
     "import-local": "^3.0.3",
     "npmlog": "^5.0.1",
-    "path-exists": "4.0.0",
-    "root-check": "1.0.0",
+    "path-exists": "^4.0.0",
+    "root-check": "^1.0.0",
     "semver": "^7.3.5"
   },
   "scripts": {
