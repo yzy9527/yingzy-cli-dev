@@ -6,7 +6,7 @@ const {exec: spawn} = require('@yingzy-cli-dev/utils');
 const path = require('path');
 
 const SETTINGS = {
-    init: 'yingzy-test'
+    init: '@yingzy-cli-dev/init'
 };
 
 const CACHE_DIR = 'dependencies';
