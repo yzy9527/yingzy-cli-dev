@@ -42,6 +42,10 @@ function registerCommand() {
         .option('-f, --force', '是否强制初始化')
         .action(exec);
 
+    program
+        .command('publish')
+        .action(exec);
+
     // 开启debug模式
     program.on('option:debug', function () {
         if (program.opts().debug) {
@@ -63,7 +67,7 @@ function registerCommand() {
         const availableCommands = program.commands.map(cmd => cmd.name());
         console.log(colors.red('未知的命令：' + obj[0]));
         if (availableCommands.length > 0) {
-            console.log(colors.green('可用命令：' + availableCommands.join(',')));
+            console.log(colors.green('可用命令1：' + availableCommands.join(',')));
         }
     });
     //program.args
