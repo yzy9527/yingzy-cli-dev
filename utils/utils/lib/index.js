@@ -1,4 +1,5 @@
 'use strict';
+const fs = require('fs');
 
 function isObject(o) {
     return Object.prototype.toString.call(o) === '[object Object]';
@@ -36,10 +37,39 @@ function execAsync(command, args, options) {
     }));
 }
 
+function readFile(path, option = {}) {
+    if (fs.existsSync(path)) {
+        const buff = fs.readFileSync(path);
+        if (buff) {
+            if (option.toJSON) {
+                return buff.toJSON();
+            } else {
+                return buff.toString();
+            }
+        }
+    }
+    return null;
+}
+
+function writeFile(path, data, {rewrite = true} = {}) {
+    if (fs.existsSync(path)) {
+        if (rewrite) {
+            fs.writeFileSync(path, data);
+            return true;
+        }
+        return false;
+    } else {
+        fs.writeFileSync(path, data);
+        return true;
+    }
+}
+
 module.exports = {
     isObject,
     spinnerStart,
     sleep,
     exec,
-    execAsync
+    execAsync,
+    readFile,
+    writeFile
 };

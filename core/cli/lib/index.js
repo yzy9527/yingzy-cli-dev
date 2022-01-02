@@ -44,6 +44,7 @@ function registerCommand() {
 
     program
         .command('publish')
+        .option('--refreshServer', '强制更新远程Git仓库')
         .action(exec);
 
     // 开启debug模式

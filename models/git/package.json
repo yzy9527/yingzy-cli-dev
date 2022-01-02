@@ -1,5 +1,5 @@
 {
-  "name": "@yingzy-cli-dev/publish",
+  "name": "@yingzy-cli-dev/git",
   "version": "1.0.0",
   "description": "> TODO: description",
   "author": "yzy9527 <cyzy9527@163.com>",
@@ -13,9 +13,6 @@
   "files": [
     "lib"
   ],
-  "publishConfig": {
-    "access": "public"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/yzy9527/yingzy-cli-dev.git"
@@ -26,10 +23,14 @@
   "bugs": {
     "url": "https://github.com/yzy9527/yingzy-cli-dev/issues"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
-    "@yingzy-cli-dev/command": "file:../../models/command",
-    "@yingzy-cli-dev/git": "file:../../models/git",
     "@yingzy-cli-dev/log": "file:../../utils/log",
-    "fs-extra": "^10.0.0"
+    "@yingzy-cli-dev/utils": "file:../../utils/utils",
+    "fs-extra": "^10.0.0",
+    "inquirer": "^8.2.0",
+    "simple-git": "^2.48.0"
   }
 }
