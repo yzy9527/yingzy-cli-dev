@@ -11,7 +11,8 @@ class PublishCommand extends Command {
     init() {
         console.log('init', this._argv);
         this.options = {
-            refreshServer: this._cmd.opts().refreshServer
+            refreshServer: this._cmd.opts().refreshServer,
+            refreshToken: this._cmd.opts().refreshToken
         };
     }
 
