@@ -32,7 +32,7 @@ class GitServer {
         error('getOrg');
     }
 
-    getSSHKeysUrl() {
+    getTokenUrl() {
         error('getSSHKeysUrl');
     }
 

@@ -23,8 +23,8 @@ class Gitee extends GitServer {
         });
     }
 
-    getSSHKeysUrl() {
-        return 'https://gitee.com/profile/sshkeys';
+    getTokenUrl() {
+        return 'https://gitee.com/personal_access_tokens';
     }
 
     getTokenHelpUrl() {
