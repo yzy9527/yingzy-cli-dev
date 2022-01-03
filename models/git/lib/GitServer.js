@@ -32,6 +32,10 @@ class GitServer {
         error('getOrg');
     }
 
+    getRepo(login, name) {
+        error('getRepo');
+    }
+
     getTokenUrl() {
         error('getSSHKeysUrl');
     }

@@ -49,8 +49,8 @@ class Git {
         refreshToken = false,
         refreshOwner = false
     }) {
-        this.name = name;
-        this.version = version;
+        this.name = name; //项目名称
+        this.version = version; //版本号
         this.dir = dir; //源码目录
         this.git = simpleGit(); //simpleGit 实例
         this.gitServer = null;//gitServer实例
@@ -70,7 +70,8 @@ class Git {
             await this.checkGitServer();//检查用户远程仓库类型
             await this.checkGitToken();
             await this.getUserAndOrgs();//获取远程仓库和用户
-            await this.checkGitOwner();
+            await this.checkGitOwner(); //确认远程仓库类型
+            await this.checkRepo(); //检查并创建远程仓库
         } catch (e) {
             log.error(e.message);
             if (process.env.LOG_LEVEL === 'verbose') {
@@ -205,6 +206,11 @@ class Git {
         }
         this.owner = owner;
         this.login = login;
+    }
+
+    async checkRepo() {
+        let repo = await this.gitServer.getRepo(this.login, this.name);
+        console.log(repo);
     }
 
     init() {

@@ -23,6 +23,17 @@ class Gitee extends GitServer {
         });
     }
 
+    getRepo(login, name) {
+        ///repos/{owner}/{repo}
+        return this.request.get(`/repos/${login}/${name}`).then(res => {
+            if (res.state !== 200) {
+                return null;
+            }
+            return res;
+        });
+
+    }
+
     getTokenUrl() {
         return 'https://gitee.com/personal_access_tokens';
     }
