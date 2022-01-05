@@ -70,7 +70,7 @@ function registerCommand() {
         const availableCommands = program.commands.map(cmd => cmd.name());
         console.log(colors.red('未知的命令：' + obj[0]));
         if (availableCommands.length > 0) {
-            console.log(colors.green('可用命令1：' + availableCommands.join(',')));
+            console.log(colors.green('可用命令：' + availableCommands.join(',')));
         }
     });
     //program.args

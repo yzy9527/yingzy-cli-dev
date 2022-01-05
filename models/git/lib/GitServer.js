@@ -12,11 +12,11 @@ class GitServer {
         this.token = token;
     }
 
-    createRepo() {
+    createRepo(name) {
         error('createRepo');
     }
 
-    createOrgRepo() {
+    createOrgRepo(name, login) {
         error('createOrgRepo');
     }
 
@@ -43,6 +43,18 @@ class GitServer {
     getTokenHelpUrl() {
         error('getSSHKeysUrl');
     }
+
+    isHttpResponse = (response) => {
+        return response && response.status;
+    };
+
+    handleResponse = (response) => {
+        if (this.isHttpResponse(response) && response !== 200) {
+            return null;
+        } else {
+            return response;
+        }
+    };
 }
 
 module.exports = GitServer;

@@ -7,7 +7,7 @@ const fse = require('fs-extra');
 const log = require('@yingzy-cli-dev/log');
 const userHome = os.homedir();
 const terminalLink = require('terminal-link');
-const {readFile, writeFile} = require('@yingzy-cli-dev/utils');
+const {readFile, writeFile, spinnerStart} = require('@yingzy-cli-dev/utils');
 const inquirer = require('inquirer');
 const Github = require('./Github');
 const Gitee = require('./Gitee');
@@ -210,7 +210,22 @@ class Git {
 
     async checkRepo() {
         let repo = await this.gitServer.getRepo(this.login, this.name);
-        console.log(repo);
+        if (!repo) {
+            let spinner = spinnerStart('开始创建远程仓库...');
+            try {
+                if (this.owner === REPO_OWNER_USER) {
+                    repo = await this.gitServer.createRepo(this.name);
+                } else {
+                    this.gitServer.createOrgRepo(this.name, this.login);
+                }
+
+            } catch (e) {
+                console.log(e);
+            } finally {
+                spinner.stop(true);
+                log.success('创建远程仓库成功');
+            }
+        }
     }
 
     init() {

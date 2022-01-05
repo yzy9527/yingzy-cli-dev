@@ -24,13 +24,24 @@ class Gitee extends GitServer {
     }
 
     getRepo(login, name) {
-        ///repos/{owner}/{repo}
-        return this.request.get(`/repos/${login}/${name}`).then(res => {
-            if (res.state !== 200) {
+        return this.request.get(`/repos/${login}/${name}`).then(response => {
+            if (response.status !== 404) {
+                return null;
+            } else {
                 return null;
             }
-            return res;
+            // return this.handleResponse(response)
         });
+
+    }
+
+    createRepo(name) {
+        return this.request.post('/user/repos', {
+            name
+        });
+    }
+
+    createOrgRepo() {
 
     }
 
