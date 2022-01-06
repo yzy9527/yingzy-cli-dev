@@ -23,7 +23,7 @@ class GithubRequest {
             },
             error => {
                 if (error.response && error.response.data) {
-                    return error.response.data;
+                    return error.response;
                 } else {
                     return Promise.reject(error);
                 }
@@ -35,7 +35,17 @@ class GithubRequest {
     get(url, params, headers) {
         return this.service({
             url,
+            params,
             method: 'get',
+            headers
+        });
+    }
+
+    post(url, data, headers) {
+        return this.service({
+            url,
+            data,
+            method: 'post',
             headers
         });
     }

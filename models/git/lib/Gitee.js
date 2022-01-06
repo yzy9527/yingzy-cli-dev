@@ -26,7 +26,7 @@ class Gitee extends GitServer {
     getRepo(login, name) {
         return this.request.get(`/repos/${login}/${name}`).then(response => {
             if (response.status !== 404) {
-                return null;
+                return response;
             } else {
                 return null;
             }
@@ -41,8 +41,10 @@ class Gitee extends GitServer {
         });
     }
 
-    createOrgRepo() {
-
+    createOrgRepo(name, login) {
+        return this.request.post(`/orgs/${login}/repos`, {
+            name
+        });
     }
 
     getTokenUrl() {

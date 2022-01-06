@@ -59,6 +59,7 @@ class Git {
         this.orgs = null; //组织列表
         this.owner = null; //远程仓库类型（个人user还是组织org）
         this.login = null; //远程仓库登录名
+        this.repo = null; //远程仓库对象
         this.refreshServer = refreshServer; //是否重新选取远程仓库类型
         this.refreshToken = refreshToken; //是否重新设置远程仓库token
         this.refreshOwner = refreshOwner; //是否重新设置远程仓库类型
@@ -210,22 +211,30 @@ class Git {
 
     async checkRepo() {
         let repo = await this.gitServer.getRepo(this.login, this.name);
+        // console.log('repo',repo);
         if (!repo) {
             let spinner = spinnerStart('开始创建远程仓库...');
             try {
                 if (this.owner === REPO_OWNER_USER) {
                     repo = await this.gitServer.createRepo(this.name);
                 } else {
-                    this.gitServer.createOrgRepo(this.name, this.login);
+                    repo = await this.gitServer.createOrgRepo(this.name, this.login);
                 }
 
             } catch (e) {
                 console.log(e);
             } finally {
                 spinner.stop(true);
-                log.success('创建远程仓库成功');
             }
+            if (repo) {
+                log.success('远程仓库创建成功');
+            } else {
+                throw new Error('远程仓库创建失败');
+            }
+        } else {
+            log.success('远程仓库信息获取成功');
         }
+        this.repo = repo;
     }
 
     init() {
