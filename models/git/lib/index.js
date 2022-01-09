@@ -18,6 +18,7 @@ const GIT_TOKEN_FILE = '.git_token';
 const GIT_OWN_FILE = '.git_own';
 const GIT_LOGIN_FILE = '.git_login'; //判断是个人登录还是组织登录
 const DEFAULT_CLI_HOME = '.yingzy-cli-dev';
+const GIT_IGNORE_FILE = '.gitignore';
 const GITHUB = 'github';
 const GITEE = 'gitee';
 const REPO_OWNER_USER = 'user';
@@ -73,6 +74,8 @@ class Git {
             await this.getUserAndOrgs();//获取远程仓库和用户
             await this.checkGitOwner(); //确认远程仓库类型
             await this.checkRepo(); //检查并创建远程仓库
+            await this.checkGitIgnore(); //检查并创建.gitignore
+            await this.init();
         } catch (e) {
             log.error(e.message);
             if (process.env.LOG_LEVEL === 'verbose') {
@@ -237,8 +240,132 @@ class Git {
         this.repo = repo;
     }
 
-    init() {
-        console.log('init');
+    checkGitIgnore() {
+        const gitIgnore = path.resolve(this.dir, GIT_IGNORE_FILE);
+        if (!fs.existsSync(gitIgnore)) {
+            writeFile(gitIgnore, `.DS_Store
+node_modules
+/dist
+
+
+# local env files
+.env.local
+.env.*.local
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?`);
+            log.success(`自动写入${GIT_IGNORE_FILE}文件成功`);
+        }
+    }
+
+    async init() {
+        if (await this.getRemote()) {
+            return;
+        }
+        await this.initAndAddRemote();
+        await this.initCommit();
+    }
+
+    async initCommit() {
+        await this.checkConflicted();//代码冲突检查
+        await this.checkNotCommitted();
+        //push
+        if (await this.checkRemoteMaster()) {
+            //存在master
+            await this.pullRemoteRepo('master', {
+                '--allow-unrelated-histories': null
+            });
+        } else {
+            await this.pushRemoteRepo('master');
+        }
+    }
+
+    async pullRemoteRepo(branchName, options) {
+        log.info(`同步远程${branchName}分支代码`);
+        await this.git.pull('origin', branchName, options)
+            .catch(e => {
+                log.error(e.message);
+            });
+    }
+
+    async pushRemoteRepo(branchName) {
+        log.info(`推送代码到${branchName}分支`);
+        await this.git.push('origin', branchName);
+        log.success('代码推送成功');
+    }
+
+    async checkRemoteMaster() {
+        return (await this.git.listRemote(['--refs'])).indexOf('refs/heads/master') >= 0;
+    }
+
+    async checkNotCommitted() {
+        const status = await this.git.status();
+        if (status.not_added.length > 0 ||
+            status.created.length > 0 ||
+            status.modified.length > 0 ||
+            status.deleted.length > 0 ||
+            status.renamed.length > 0
+        ) {
+            log.verbose('status', status);
+            await this.git.add(status.not_added);
+            await this.git.add(status.created);
+            await this.git.add(status.deleted);
+            await this.git.add(status.modified);
+            await this.git.add(status.renamed);
+            let message;
+            while (!message) {
+                //防止commit信息为空
+                message = (await inquirer.prompt({
+                    type: 'text',
+                    name: 'message',
+                    message: '请输入commit信息'
+                })).message;
+            }
+            await this.git.commit(message);
+            log.success('本次commit提交成功');
+        }
+    }
+
+    async checkConflicted() {
+        log.info('开始检查代码冲突...');
+        const status = await this.git.status();
+        if (status.conflicted.length > 0) {
+            throw new Error('当前代码存在冲突，请手动处理合并后再操作！');
+        }
+        log.success('代码冲突检查通过');
+    }
+
+    async getRemote() {
+        const gitPath = path.resolve(this.dir, GIT_ROOT_DIR);
+        this.remote = this.gitServer.getRemote(this.login, this.name);
+        if (fs.existsSync(gitPath)) {
+            log.success('git已完成初始化');
+            return true;
+        } else {
+
+        }
+    }
+
+    async initAndAddRemote() {
+        log.info('开始执行git初始化');
+        await this.git.init(this.dir);
+        log.info('添加 git remote');
+        const remotes = await this.git.getRemotes();
+        if (!remotes.find(item => item.name === 'origin')) {
+            await this.git.addRemote('origin', this.remote);
+        }
     }
 }
 

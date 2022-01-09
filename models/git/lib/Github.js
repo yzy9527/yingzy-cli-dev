@@ -59,6 +59,10 @@ class Github extends GitServer {
     getTokenHelpUrl() {
         return 'https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account';
     }
+
+    getRemote(login, name) {
+        return `git@github.com:${login}/${name}.git`;
+    }
 }
 
 module.exports = Github;
