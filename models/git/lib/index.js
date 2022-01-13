@@ -11,6 +11,7 @@ const {readFile, writeFile, spinnerStart} = require('@yingzy-cli-dev/utils');
 const inquirer = require('inquirer');
 const Github = require('./Github');
 const Gitee = require('./Gitee');
+const semver = require('semver');
 
 const GIT_SERVER_FILE = '.git_server';
 const GIT_ROOT_DIR = '.git';
@@ -23,6 +24,10 @@ const GITHUB = 'github';
 const GITEE = 'gitee';
 const REPO_OWNER_USER = 'user';
 const REPO_OWNER_ORG = 'org';
+const VERSION_RELEASE = 'release';//发布分支
+const VERSION_DEVELOP = 'dev';
+
+
 const GIT_SERVER_TYPE = [{
     name: 'Github',
     value: GITHUB
@@ -64,6 +69,7 @@ class Git {
         this.refreshServer = refreshServer; //是否重新选取远程仓库类型
         this.refreshToken = refreshToken; //是否重新设置远程仓库token
         this.refreshOwner = refreshOwner; //是否重新设置远程仓库类型
+        this.branch = null; //本地开发分支
     }
 
     async prepare() {
@@ -276,6 +282,95 @@ pnpm-debug.log*
         }
         await this.initAndAddRemote();
         await this.initCommit();
+    }
+
+    async commit() {
+        // 1.生成开发分支
+        await this.getCorrectVersion();
+        //2.子开发分支上提交代码
+        //3.合并远程开发分支
+        //4.推送开发分支
+        //
+    }
+
+    async getCorrectVersion(type) {
+        // 1.获取远程分布分支
+        // 版本号规范：release/x.y.z，dev/x.y.z
+        // 版本号递增规范：major/minor/patch
+        log.info('获取代码分支');
+        const remoteBranchList = await this.getRemoteBranchList(VERSION_RELEASE);
+        let releaseVersion = null;
+        if (remoteBranchList && remoteBranchList.length > 0) {
+            releaseVersion = remoteBranchList[0];
+        }
+        log.verbose('线上最新版本号：', releaseVersion);
+        // 2.生成本地开发分支
+        const devVersion = this.version;
+        if (!releaseVersion) {
+            this.branch = `${VERSION_DEVELOP}/${devVersion}`;
+        } else if (semver.gt(this.version, releaseVersion)) {
+            //存在远程版本号
+            log.info('当前版本大于线上版本', `${devVersion} >= ${releaseVersion}`);
+            this.branch = `${VERSION_DEVELOP}/${devVersion}`;
+        } else {
+            log.info('线上版本大于本地版本', `${releaseVersion} > ${devVersion}`);
+            const increaseType = (await inquirer.prompt({
+                type: 'list',
+                name: 'increaseType',
+                message: '自动升级版本，请选择要升级的类型',
+                choices: [{
+                    name: `小版本（${releaseVersion} -> ${semver.inc(releaseVersion, 'patch')}）`,
+                    value: 'patch'
+                }, {
+                    name: `中版本（${releaseVersion} -> ${semver.inc(releaseVersion, 'minor')}）`,
+                    value: 'minor'
+                }, {
+                    name: `大版本（${releaseVersion} -> ${semver.inc(releaseVersion, 'major')}）`,
+                    value: 'major'
+                }]
+            })).increaseType;
+            const increaseVersion = semver.inc(releaseVersion, increaseType);
+            this.branch = `${VERSION_DEVELOP}/${increaseVersion}`;
+            this.version = increaseVersion;
+        }
+        log.verbose('本地开发分支：', this.branch);
+        this.syncVersionToPackageJson();
+    }
+
+    syncVersionToPackageJson() {
+        // 将版本号同步写入到package.json
+        const pkg = fse.readJsonSync(`${this.dir}/package.json`);
+        if (pkg && pkg.version !== this.version) {
+            pkg.version = this.version;
+            fse.writeJsonSync(`${this.dir}/package.json`, pkg, {spaces: 2});
+        }
+    }
+
+    async getRemoteBranchList(type) {
+        const remoteList = await this.git.listRemote(['--refs']);
+        let reg;
+        if (type === VERSION_RELEASE) {
+            reg = /.+?refs\/tags\/release\/(\d+\.\d+\.\d+)/g;
+        } else {
+            reg = /.+?refs\/heads\/dev\/(\d+\.\d+\.\d+)/g;
+        }
+        return remoteList.split('\n').map(remote => {
+            const match = reg.exec(remote);
+            // 如果存在多个版本号，只会获取第一个，需要将lastIndex置为0
+            reg.lastIndex = 0;
+            if (match && semver.valid(match[1])) {
+                // 版本号
+                return match[1];
+            }
+        }).filter(_ => _)
+            .sort((a, b) => {
+                //将最新的版本号放在第一位
+                if (semver.lte(b, a)) {
+                    if (a === b) return 0;
+                    return -1;
+                }
+                return 1;
+            });
     }
 
     async initCommit() {

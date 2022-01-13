@@ -17,14 +17,15 @@ class PublishCommand extends Command {
         };
     }
 
-    exec() {
+    async exec() {
         try {
             const startTime = new Date().getTime();
             //1. 初始化检查
             this.prepare();
             // 2. git flow自动化
             const git = new Git(this.projectInfo, this.options);
-            git.prepare();
+            await git.prepare();//提交前准备和代码仓库初始化
+            await git.commit();
             // 3. 云构建和云发布
             const endTIme = new Date().getTime();
             log.info('本次发布耗时：', Math.floor((endTIme - startTime) / 1000) + '秒');
