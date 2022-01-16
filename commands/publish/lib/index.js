@@ -9,11 +9,12 @@ const Git = require('@yingzy-cli-dev/git');
 
 class PublishCommand extends Command {
     init() {
-        console.log('init', this._argv);
+        log.verbose('publish', this._argv);
         this.options = {
             refreshServer: this._cmd.opts().refreshServer,
             refreshToken: this._cmd.opts().refreshToken,
-            refreshOwner: this._cmd.opts().refreshOwner
+            refreshOwner: this._cmd.opts().refreshOwner,
+            buildCmd: this._cmd.opts().buildCmd
         };
     }
 
@@ -27,6 +28,8 @@ class PublishCommand extends Command {
             await git.prepare();//提交前准备和代码仓库初始化
             await git.commit();
             // 3. 云构建和云发布
+            await git.publish();
+
             const endTIme = new Date().getTime();
             log.info('本次发布耗时：', Math.floor((endTIme - startTime) / 1000) + '秒');
         } catch (e) {

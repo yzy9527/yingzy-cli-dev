@@ -4,14 +4,15 @@ const path = require('path');
 const os = require('os');
 const fs = require('fs');
 const fse = require('fs-extra');
-const log = require('@yingzy-cli-dev/log');
+const semver = require('semver');
 const userHome = os.homedir();
 const terminalLink = require('terminal-link');
+const log = require('@yingzy-cli-dev/log');
 const {readFile, writeFile, spinnerStart} = require('@yingzy-cli-dev/utils');
 const inquirer = require('inquirer');
 const Github = require('./Github');
 const Gitee = require('./Gitee');
-const semver = require('semver');
+const CloudBuild = require('@yingzy-cli-dev/cloudbuild');
 
 const GIT_SERVER_FILE = '.git_server';
 const GIT_ROOT_DIR = '.git';
@@ -53,7 +54,8 @@ class Git {
     constructor({name, version, dir}, {
         refreshServer = false,
         refreshToken = false,
-        refreshOwner = false
+        refreshOwner = false,
+        buildCmd = ''
     }) {
         this.name = name; //项目名称
         this.version = version; //版本号
@@ -70,6 +72,7 @@ class Git {
         this.refreshToken = refreshToken; //是否重新设置远程仓库token
         this.refreshOwner = refreshOwner; //是否重新设置远程仓库类型
         this.branch = null; //本地开发分支
+        this.buildCmd = buildCmd; //构建命令
     }
 
     async prepare() {
@@ -299,6 +302,25 @@ pnpm-debug.log*
         await this.pushRemoteRepo(this.branch);
     }
 
+    async publish() {
+        await this.preparePublish();
+        const cloudBuild = new CloudBuild(this, {
+            buildCmd: this.buildCmd
+        });
+        cloudBuild.init();
+    }
+
+    async preparePublish() {
+        if (this.buildCmd) {
+            const buildCmdArray = this.buildCmd.split(' ');
+            if (!['npm', 'cnpm'].includes(buildCmdArray[0])) {
+                throw new Error('build命令非法，必须使用npm或cnpm');
+            }
+        } else {
+            this.buildCmd = 'npm run build';
+        }
+    }
+
     async pullRemoteMasterAndBranch() {
         log.info(`合并 [master] -> [${this.branch}]`);
         await this.pullRemoteRepo('master');
@@ -330,7 +352,6 @@ pnpm-debug.log*
     async checkStash() {
         log.info('检查stash记录');
         const stashList = await this.git.stashList();
-        console.log('stashList', stashList, stashList.all.length > 0);
         if (stashList.all.length > 0) {
             await this.git.stash(['pop']);
             log.success('stash pop成功');
