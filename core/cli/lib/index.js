@@ -151,5 +151,15 @@ function checkPkgVersion() {
     log.notice('cli', pkg.version);
 }
 
+process.on('unhandledRejection', (reason, p) => {
+    console.log('unhandledRejection', reason);
+    throw reason;
+});
+
+process.on('uncaughtException', error => {
+    console.log('uncaughtException', error);
+    process.exit(1);
+});
+
 
 
