@@ -27,7 +27,8 @@
     "url": "https://github.com/yzy9527/yingzy-cli-dev/issues"
   },
   "dependencies": {
-    "socket.io-client": "^2.0.0",
-    "@yingzy-cli-dev/log": "file:../../utils/log"
+    "@yingzy-cli-dev/log": "file:../../utils/log",
+    "lodash": "^4.17.21",
+    "socket.io-client": "^2.0.0"
   }
 }

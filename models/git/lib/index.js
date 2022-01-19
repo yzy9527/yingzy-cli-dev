@@ -478,7 +478,7 @@ pnpm-debug.log*
             status.deleted.length > 0 ||
             status.renamed.length > 0
         ) {
-            log.verbose('status', status);
+            // log.verbose('status', status);
             await this.git.add(status.not_added);
             await this.git.add(status.created);
             await this.git.add(status.deleted);
