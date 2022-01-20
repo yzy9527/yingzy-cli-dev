@@ -307,7 +307,8 @@ pnpm-debug.log*
         const cloudBuild = new CloudBuild(this, {
             buildCmd: this.buildCmd
         });
-        cloudBuild.init();
+        await cloudBuild.init();
+        await cloudBuild.build();
     }
 
     async preparePublish() {

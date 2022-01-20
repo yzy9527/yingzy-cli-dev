@@ -8,6 +8,7 @@ const WS_SERVER = 'http://127.0.0.1:7001';
 const TIME_OUT = 5 * 60;
 const CONNECT_TIME_OUT = 5 * 1000;
 
+const FAILED_CODE = ['prepare failed', 'download failed', 'install failed', 'build failed'];
 
 function parseMsg(msg) {
     const action = get(msg, 'data.action');
@@ -32,41 +33,67 @@ class CloudBuild {
     }
 
     init() {
-        const socket = io(WS_SERVER, {
-            query: {
-                repo: this.git.remote
-            }
-        });
-        socket.on('connect', () => {
-            // 5秒内连接成功就清处定时器
-            clearTimeout(this.timer);
-            const {id} = socket;
-            log.success('云构建任务创建成功', `任务Id:${id}`);
-            socket.on(id, msg => {
-                // console.log(msg);
-                const parseMessage = parseMsg(msg);
-                // console.log(parseMessage);
-                log.success(parseMessage.action, parseMessage.message);
+        return new Promise((resolve, reject) => {
+            const socket = io(WS_SERVER, {
+                query: {
+                    repo: this.git.remote,
+                    name: this.git.name,
+                    branch: this.git.branch,
+                    version: this.git.version,
+                    buildCmd: this.buildCmd
+                }
             });
+            socket.on('connect', () => {
+                // 5秒内连接成功就清处定时器
+                clearTimeout(this.timer);
+                const {id} = socket;
+                log.success('云构建任务创建成功', `任务Id:${id}`);
+                socket.on(id, msg => {
+                    const parseMessage = parseMsg(msg);
+                    // console.log(parseMessage);
+                    log.success(parseMessage.action, parseMessage.message);
+                });
+                resolve();
+            });
+            const disconnect = () => {
+                clearTimeout(this.timer);
+                socket.disconnect();
+                socket.close();
+            };
+            this.doTimeout(() => {
+                log.error('云构建连接超时，自动终止');
+                disconnect();
+            }, CONNECT_TIME_OUT);
+            socket.on('disconnect', () => {
+                log.success('disconnect', '云构建任务断开');
+                disconnect();
+            });
+            socket.on('error', error => {
+                log.error('error', '云构建出错', error);
+                disconnect();
+                reject(err);
+            });
+            this.socket = socket;
         });
-        const disconnect = () => {
-            clearTimeout(this.timer);
-            socket.disconnect();
-            socket.close();
-        };
-        this.doTimeout(() => {
-            log.error('云构建连接超时，自动终止');
-            disconnect();
-        }, CONNECT_TIME_OUT);
+    }
 
-        socket.on('disconnect', () => {
-            log.success('disconnect', '云构建任务断开');
-            disconnect();
-        });
-
-        socket.on('error', error => {
-            log.error('error', '云构建出错', error);
-            disconnect();
+    build() {
+        return new Promise((resolve, reject) => {
+            this.socket.emit('build');
+            this.socket.on('build', obj => {
+                const msg = parseMsg(obj);
+                if (FAILED_CODE.indexOf(msg.action) >= 0) {
+                    log.error(msg.action, msg.message);
+                    clearTimeout(this.timer);
+                    this.socket.disconnect();
+                    this.socket.close();
+                } else {
+                    log.success(msg.action, msg.message);
+                }
+            });
+            this.socket.on('building', msg => {
+                console.log(msg);
+            });
         });
     }
 }
