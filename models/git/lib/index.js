@@ -21,6 +21,7 @@ const GIT_OWN_FILE = '.git_own';
 const GIT_LOGIN_FILE = '.git_login'; //判断是个人登录还是组织登录
 const DEFAULT_CLI_HOME = '.yingzy-cli-dev';
 const GIT_IGNORE_FILE = '.gitignore';
+const GIT_PUBLISH_FILE = '.git_publish';
 const GITHUB = 'github';
 const GITEE = 'gitee';
 const REPO_OWNER_USER = 'user';
@@ -50,12 +51,18 @@ const GIT_OWN_TYPE_ONLY = [{
     value: REPO_OWNER_USER
 }];
 
+const GIT_PUBLISH_TYPE = [{
+    name: 'OSS',
+    value: 'oss'
+}];
+
 class Git {
     constructor({name, version, dir}, {
         refreshServer = false,
         refreshToken = false,
         refreshOwner = false,
-        buildCmd = ''
+        buildCmd = '',
+        prod = false
     }) {
         this.name = name; //项目名称
         this.version = version; //版本号
@@ -68,6 +75,8 @@ class Git {
         this.owner = null; //远程仓库类型（个人user还是组织org）
         this.login = null; //远程仓库登录名
         this.repo = null; //远程仓库对象
+        this.gitPublish = null; // 静态资源服务器类型
+        this.prod = prod; // 是否正式发布
         this.refreshServer = refreshServer; //是否重新选取远程仓库类型
         this.refreshToken = refreshToken; //是否重新设置远程仓库token
         this.refreshOwner = refreshOwner; //是否重新设置远程仓库类型
@@ -76,21 +85,14 @@ class Git {
     }
 
     async prepare() {
-        try {
-            this.checkHomePath();//检查主目录
-            await this.checkGitServer();//检查用户远程仓库类型
-            await this.checkGitToken();
-            await this.getUserAndOrgs();//获取远程仓库和用户
-            await this.checkGitOwner(); //确认远程仓库类型
-            await this.checkRepo(); //检查并创建远程仓库
-            await this.checkGitIgnore(); //检查并创建.gitignore
-            await this.init();
-        } catch (e) {
-            log.error(e.message);
-            if (process.env.LOG_LEVEL === 'verbose') {
-                console.log(e);
-            }
-        }
+        this.checkHomePath();//检查主目录
+        await this.checkGitServer();//检查用户远程仓库类型
+        await this.checkGitToken();
+        await this.getUserAndOrgs();//获取远程仓库和用户
+        await this.checkGitOwner(); //确认远程仓库类型
+        await this.checkRepo(); //检查并创建远程仓库
+        await this.checkGitIgnore(); //检查并创建.gitignore
+        await this.init();
     }
 
     checkHomePath() {
@@ -305,13 +307,18 @@ pnpm-debug.log*
     async publish() {
         await this.preparePublish();
         const cloudBuild = new CloudBuild(this, {
-            buildCmd: this.buildCmd
+            buildCmd: this.buildCmd,
+            type: this.gitPublish,
+            prod: this.prod
         });
+        await cloudBuild.prepare();
         await cloudBuild.init();
         await cloudBuild.build();
     }
 
     async preparePublish() {
+        log.info('开始进行云构建前代码检查');
+        const pkg = this.getPackageJson();
         if (this.buildCmd) {
             const buildCmdArray = this.buildCmd.split(' ');
             if (!['npm', 'cnpm'].includes(buildCmdArray[0])) {
@@ -320,6 +327,35 @@ pnpm-debug.log*
         } else {
             this.buildCmd = 'npm run build';
         }
+        const buildAmdArray = this.buildCmd.split(' ');
+        const lastCmd = buildAmdArray[buildAmdArray.length - 1];
+        if (!pkg.scripts || !Object.keys(pkg.scripts).includes(lastCmd)) {
+            throw new Error(this.buildCmd + '命令不存在');
+        }
+        log.info('云构建代码检查通过');
+        const gitPublishPath = this.createPath(GIT_PUBLISH_FILE);
+        let gitPublish = readFile(gitPublishPath);
+        if (!gitPublish) {
+            gitPublish = (await inquirer.prompt({
+                type: 'list',
+                choices: GIT_PUBLISH_TYPE,
+                message: '请选择您想要上传代码的平台',
+                name: 'gitPublish'
+            })).gitPublish;
+            writeFile(gitPublishPath, gitPublish);
+            log.success('git publish类型写入成功', `${gitPublish} -> ${gitPublishPath}`);
+        } else {
+            log.success('git publish类型获取成功', gitPublish);
+        }
+        this.gitPublish = gitPublish;
+    }
+
+    getPackageJson() {
+        const pkgPath = path.resolve(this.dir, 'package.json');
+        if (!fs.existsSync(pkgPath)) {
+            throw new Error(`源码目录${this.dir}：package.json 不存在`);
+        }
+        return fse.readJsonSync(pkgPath);
     }
 
     async pullRemoteMasterAndBranch() {
