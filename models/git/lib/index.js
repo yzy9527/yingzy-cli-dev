@@ -509,6 +509,7 @@ pnpm-debug.log*
 
     async checkNotCommitted() {
         const status = await this.git.status();
+        log.info('sss', status);
         if (status.not_added.length > 0 ||
             status.created.length > 0 ||
             status.modified.length > 0 ||

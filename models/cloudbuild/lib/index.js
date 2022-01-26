@@ -50,7 +50,6 @@ class CloudBuild {
             });
             // 判断当前oss文件是否存在
             if (ossProject.code === 0 && ossProject.data.length > 0) {
-                console.log('ossProject', ossProject);
                 const cover = (await inquirer.prompt({
                     type: 'list',
                     name: 'cover',
@@ -65,10 +64,9 @@ class CloudBuild {
                     message: `OSS已存在 [${projectName}] 项目，是否覆盖发布`
                 })).cover;
                 if (!cover) {
-                    return;
+                    throw new Error('发布终止');
                 }
                 //如果存在，是否覆盖
-
             }
         }
 
