@@ -49,6 +49,9 @@ function registerCommand() {
         .option('--refreshOwner', '强制更新远程仓库类型')
         .option('--buildCmd <buildCmd>', '构建命令')
         .option('--prod', '是否正式发布')
+        .option('--sshUser <sshUser>', 'nginx服务器用户名')
+        .option('--sshIp <sshIp>', 'nginx服务器Ip或域名')
+        .option('--sshPath <sshPath>', 'nginx服务器上传路径')
         .action(exec);
 
     // 开启debug模式

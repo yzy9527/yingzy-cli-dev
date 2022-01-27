@@ -62,7 +62,10 @@ class Git {
         refreshToken = false,
         refreshOwner = false,
         buildCmd = '',
-        prod = false
+        prod = false,
+        sshUser = '',
+        sshIp = '',
+        sshPath = ''
     }) {
         this.name = name; //项目名称
         this.version = version; //版本号
@@ -82,6 +85,9 @@ class Git {
         this.refreshOwner = refreshOwner; //是否重新设置远程仓库类型
         this.branch = null; //本地开发分支
         this.buildCmd = buildCmd; //构建命令
+        this.sshUser = ''; //服务器的用户名
+        this.sshIp = '';//服务器ip
+        this.sshPath = '';//服务器地址
     }
 
     async prepare() {
@@ -296,11 +302,13 @@ pnpm-debug.log*
         await this.checkStash();
         // 3.检查代码冲突
         await this.checkConflicted();
-        //4.切换开发分支
+        // 4.检查未提交代码
+        await this.checkNotCommitted();
+        //5.切换开发分支
         await this.checkoutBranch(this.branch);
-        //5.合并远程master分支和开发分支代码，本地dev合并master
+        //6.合并远程master分支和开发分支代码，本地dev合并master
         await this.pullRemoteMasterAndBranch();
-        //6.将开发分支推送到远程仓库
+        //7.将开发分支推送到远程仓库
         await this.pushRemoteRepo(this.branch);
     }
 
@@ -313,7 +321,11 @@ pnpm-debug.log*
         });
         await cloudBuild.prepare();
         await cloudBuild.init();
-        await cloudBuild.build();
+        const ret = await cloudBuild.build();
+        console.log(ret);
+        if (ret) {
+            await this.uploadTemplate();
+        }
     }
 
     async preparePublish() {
@@ -509,7 +521,6 @@ pnpm-debug.log*
 
     async checkNotCommitted() {
         const status = await this.git.status();
-        log.info('sss', status);
         if (status.not_added.length > 0 ||
             status.created.length > 0 ||
             status.modified.length > 0 ||
