@@ -468,7 +468,7 @@ pnpm-debug.log*
         log.info('检查远程开发分支');
         const remoteBranchList = await this.getRemoteBranchList();
         if (remoteBranchList.indexOf(this.version) >= 0) {
-            log.info(`合并 [${this.branch}] -> [${this.branch}]`);
+            log.info(`合并远程 [${this.branch}] -> 本地[${this.branch}]`);
             await this.pullRemoteRepo(this.branch);
             log.success(`合并远程 [${this.branch}] 分支代码成功`);
             await this.checkConflicted();
@@ -508,6 +508,7 @@ pnpm-debug.log*
             releaseVersion = remoteBranchList[0];
         }
         log.verbose('线上最新版本号：', releaseVersion);
+        log.verbose('本地版本号：', this.version);
         // 2.生成本地开发分支
         const devVersion = this.version;
         if (!releaseVersion) {
