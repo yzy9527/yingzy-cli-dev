@@ -2,7 +2,7 @@
 
 const axios = require('axios');
 
-const BASE_URL = process.env.YINGZY_CLI_BASE_URL ? process.env.YINGZY_CLI_BASE_URL : 'http://api.xiaoxilao.com:7001';
+const BASE_URL = process.env.YINGZY_CLI_BASE_URL ? process.env.YINGZY_CLI_BASE_URL : 'http://cloud.xiaoxilao.com:7001';
 const request = axios.create({
     baseURL: BASE_URL,
     timeout: 5000
