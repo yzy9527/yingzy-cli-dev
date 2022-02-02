@@ -27,13 +27,15 @@
     "access": "public"
   },
   "dependencies": {
-    "@yingzy-cli-dev/log": "file:../../utils/log",
-    "@yingzy-cli-dev/utils": "file:../../utils/utils",
-    "@yingzy-cli-dev/request": "file:../../utils/request",
     "@yingzy-cli-dev/cloudbuild": "file:../../models/cloudbuild",
+    "@yingzy-cli-dev/log": "file:../../utils/log",
+    "@yingzy-cli-dev/request": "file:../../utils/request",
+    "@yingzy-cli-dev/utils": "file:../../utils/utils",
     "axios": "^0.24.0",
     "fs-extra": "^10.0.0",
     "inquirer": "^8.2.0",
+    "listr": "^0.14.3",
+    "rxjs": "^7.5.2",
     "simple-git": "^2.48.0",
     "terminal-link": "^2.1.1"
   }

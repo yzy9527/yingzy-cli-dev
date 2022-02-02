@@ -33,7 +33,6 @@ class PublishCommand extends Command {
             await git.commit();
             // 3. 云构建和云发布
             await git.publish();
-
             const endTIme = new Date().getTime();
             log.info('本次发布耗时：', Math.floor((endTIme - startTime) / 1000) + '秒');
         } catch (e) {

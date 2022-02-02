@@ -127,9 +127,9 @@ class CloudBuild {
                 if (FAILED_CODE.indexOf(msg.action) >= 0) {
                     log.error(msg.action, msg.message);
                     clearTimeout(this.timer);
+                    ret = false;
                     this.socket.disconnect();
                     this.socket.close();
-                    ret = false;
                 } else {
                     log.success(msg.action, msg.message);
                 }
