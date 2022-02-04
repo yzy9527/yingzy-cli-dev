@@ -12,7 +12,7 @@ const userHome = os.homedir();
 const Command = require('@yingzy-cli-dev/command');
 const log = require('@yingzy-cli-dev/log');
 const {spinnerStart, sleep, execAsync} = require('@yingzy-cli-dev/utils');
-const Package = require('@yingzy-cli-dev/Package');
+const Package = require('@yingzy-cli-dev/package');
 
 const getProjectTemplate = require('./getProjectTemplate');
 
