@@ -27,9 +27,9 @@
     "url": "https://github.com/yzy9527/yingzy-cli-dev/issues"
   },
   "dependencies": {
-    "@yingzy-cli-dev/format-path": "file:../../utils/format-path",
-    "@yingzy-cli-dev/get-npm-info": "file:../../utils/get-npm-info",
-    "@yingzy-cli-dev/utils": "file:../../utils/utils",
+    "@yingzy-cli-dev/format-path": "^1.0.0",
+    "@yingzy-cli-dev/get-npm-info": "^1.0.0",
+    "@yingzy-cli-dev/utils": "^1.0.0",
     "fs-extra": "^10.0.0",
     "npminstall": "^4.10.0",
     "path-exists": "^4.0.0",
@@ -38,5 +38,6 @@
   "devDependencies": {
     "mocha": "^9.2.0",
     "should": "^13.2.3"
-  }
+  },
+  "gitHead": "d14f67439851ce167aa816b0c789666ea834d945"
 }

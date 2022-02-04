@@ -17,10 +17,10 @@
     "lib"
   ],
   "dependencies": {
-    "@yingzy-cli-dev/exec": "file:../exec",
-    "@yingzy-cli-dev/get-npm-info": "file:../../utils/get-npm-info",
-    "@yingzy-cli-dev/init": "file:../../commands/init",
-    "@yingzy-cli-dev/log": "file:../../utils/log",
+    "@yingzy-cli-dev/exec": "^1.0.0",
+    "@yingzy-cli-dev/get-npm-info": "^1.0.0",
+    "@yingzy-cli-dev/init": "^1.0.0",
+    "@yingzy-cli-dev/log": "^1.0.0",
     "colors": "^1.4.0",
     "commander": "^8.3.0",
     "dotenv": "^10.0.0",
@@ -35,5 +35,6 @@
   },
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "gitHead": "d14f67439851ce167aa816b0c789666ea834d945"
 }

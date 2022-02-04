@@ -27,8 +27,9 @@
     "url": "https://github.com/yzy9527/yingzy-cli-dev/issues"
   },
   "dependencies": {
-    "@yingzy-cli-dev/log": "file:../../utils/log",
-    "@yingzy-cli-dev/package": "file:../../models/package",
-    "@yingzy-cli-dev/utils": "file:../../utils/utils"
-  }
+    "@yingzy-cli-dev/log": "^1.0.0",
+    "@yingzy-cli-dev/package": "^1.0.0",
+    "@yingzy-cli-dev/utils": "^1.0.0"
+  },
+  "gitHead": "d14f67439851ce167aa816b0c789666ea834d945"
 }
