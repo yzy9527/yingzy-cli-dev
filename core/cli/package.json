@@ -7,7 +7,7 @@
   "license": "ISC",
   "main": "lib/index.js",
   "bin": {
-    "yingzy-cli": "bin/index.js"
+    "yingzy": "bin/index.js"
   },
   "directories": {
     "lib": "lib",
