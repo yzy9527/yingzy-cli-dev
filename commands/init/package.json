@@ -28,16 +28,15 @@
   },
   "dependencies": {
     "@yingzy-cli-dev/Package": "file:../../models/Package",
-    "@yingzy-cli-dev/command": "^1.0.0",
-    "@yingzy-cli-dev/log": "^1.0.0",
-    "@yingzy-cli-dev/request": "^1.0.0",
-    "@yingzy-cli-dev/utils": "^1.0.0",
+    "@yingzy-cli-dev/command": "file:../../models/command",
+    "@yingzy-cli-dev/log": "file:../../utils/log",
+    "@yingzy-cli-dev/request": "file:../../utils/request",
+    "@yingzy-cli-dev/utils": "file:../../utils/utils",
     "ejs": "^3.1.6",
     "fs-extra": "^10.0.0",
     "glob": "^7.2.0",
     "inquirer": "^8.2.0",
     "kebab-case": "^1.0.1",
     "semver": "^7.3.5"
-  },
-  "gitHead": "d14f67439851ce167aa816b0c789666ea834d945"
+  }
 }
