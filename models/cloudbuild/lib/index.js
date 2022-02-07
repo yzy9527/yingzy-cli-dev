@@ -6,7 +6,7 @@ const request = require('@yingzy-cli-dev/request');
 const get = require('lodash/get');
 const inquirer = require('inquirer');
 
-const WS_SERVER = 'http://cloud.xiaoxilao.com:7001';
+const WS_SERVER = 'http://0.0.0.0:7001';
 const TIME_OUT = 5 * 60;
 const CONNECT_TIME_OUT = 5 * 1000;
 
@@ -75,13 +75,16 @@ class CloudBuild {
     init() {
         return new Promise((resolve, reject) => {
             const socket = io(WS_SERVER, {
+                transports: ['websocket'],
                 query: {
                     repo: this.git.remote,
                     name: this.git.name,
                     branch: this.git.branch,
                     version: this.git.version,
                     buildCmd: this.buildCmd,
-                    prod: this.prod
+                    prod: this.prod,
+                    login: this.git.user.login,
+                    gitServer: this.git.gitServer.type
                 }
             });
             socket.on('connect', () => {
@@ -124,6 +127,7 @@ class CloudBuild {
             this.socket.emit('build');
             this.socket.on('build', obj => {
                 const msg = parseMsg(obj);
+                // console.log('msg',msg,FAILED_CODE.indexOf(msg.action) >= 0);
                 if (FAILED_CODE.indexOf(msg.action) >= 0) {
                     log.error(msg.action, msg.message);
                     clearTimeout(this.timer);
