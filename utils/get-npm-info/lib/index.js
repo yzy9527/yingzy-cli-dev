@@ -35,10 +35,10 @@ async function getNpmVersion(npmName, registry) {
 
 function getSemverVersions(baseVersion, versions) {
     versions = versions
-        .filter(version => semver.satisfies(version, `^${baseVersion}`))
+        .filter(version => semver.satisfies(version, `>${baseVersion}`))
         .sort((a, b) => {
             //倒序，b>a,b在前,防止npm返回的版本号顺序错误
-            return semver.gt(b, a);
+             return semver.gt(b, a) ? 1 : -1;
         });
     return versions;
 }
@@ -54,7 +54,7 @@ async function getNpmSemverVersion(baseVersion, npmName, registry) {
 async function getNpmLatestVersion(npmName, registry) {
     let versions = await getNpmVersion(npmName, registry);
     if (versions) {
-        return versions.sort((a, b) => semver.gt(b, a))[0];
+        return versions.sort((a, b) => semver.gt(b, a)?1:-1)[0];
     } else {
         return null;
     }
@@ -67,5 +67,3 @@ module.exports = {
     getDefaultRegistry,
     getNpmLatestVersion
 };
-
-
