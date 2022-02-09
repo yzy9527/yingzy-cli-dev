@@ -10,7 +10,7 @@ const WS_SERVER = 'http://cloud.xiaoxilao.com:7001';
 const TIME_OUT = 5 * 60;
 const CONNECT_TIME_OUT = 5 * 1000;
 
-const FAILED_CODE = ['prepare failed', 'download failed', 'install failed', 'build failed', 'pre-publish failed', 'publish failed'];
+const FAILED_CODE = ['prepare failed', 'download failed', 'install failed', 'build failed', 'pre-publish failed', 'publish failed', 'check failed'];
 
 function parseMsg(msg) {
     const action = get(msg, 'data.action');
@@ -84,7 +84,8 @@ class CloudBuild {
                     buildCmd: this.buildCmd,
                     prod: this.prod,
                     login: this.git.user.login,
-                    gitServer: this.git.gitServer.type
+                    gitServer: this.git.gitServer.type,
+                    ossCheckCode: this.git.ossCheckCode
                 }
             });
             socket.on('connect', () => {

@@ -61,6 +61,7 @@ class PublishCommand extends Command {
             name, version, dir: projectPath
         };
     }
+
 }
 
 

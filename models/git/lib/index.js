@@ -25,6 +25,7 @@ const GIT_LOGIN_FILE = '.git_login'; //判断是个人登录还是组织登录
 const DEFAULT_CLI_HOME = '.yingzy-cli-dev';
 const GIT_IGNORE_FILE = '.gitignore';
 const GIT_PUBLISH_FILE = '.git_publish';
+const OSS_AUTH_KEY_FILE = '.oss_auth_key';
 const GITHUB = 'github';
 const GITEE = 'gitee';
 const REPO_OWNER_USER = 'user';
@@ -92,6 +93,7 @@ class Git {
         this.sshUser = sshUser; //服务器的用户名
         this.sshIp = sshIp;//服务器ip
         this.sshPath = sshPath;//服务器地址
+        this.ossCheckCode = null;//oss校验码
     }
 
     async prepare() {
@@ -563,6 +565,41 @@ pnpm-debug.log*
             log.success('git publish类型获取成功', gitPublish);
         }
         this.gitPublish = gitPublish;
+        await this.checkAccount(gitPublish)
+    }
+
+    async checkAccount(gitPublish){
+        if(gitPublish==='oss'){
+            const ossAuthKeyFile = this.createPath(OSS_AUTH_KEY_FILE);
+            let ossAuthKey = readFile(ossAuthKeyFile);
+            if(!ossAuthKey){
+                const ossCheckCode = (await inquirer.prompt({
+                    type: 'input',
+                    name: 'checkCode',
+                    defaultValue: '',
+                    message: `oss上传密钥：`,
+                    validate: function (v) {
+                        const done = this.async();
+                        setTimeout(function () {
+                            if (!v) {
+                                done('请输入密钥：');
+                                return;
+                            }
+                            done(null, true);
+                        }, 0);
+                    },
+                    filter: function (v) {
+                        return v;
+                    }
+                })).checkCode
+                writeFile(ossAuthKeyFile, this.ossCheckCode);
+                log.success('ossAuthKey写入成功', `${this.ossCheckCode} -> ${ossAuthKeyFile}`);
+            }else {
+                log.success('ossAuthKey类型获取成功');
+                log.verbose('ossAuthKey', ossAuthKey)
+            }
+            this.ossCheckCode = ossAuthKey
+        }
     }
 
     getPackageJson() {
