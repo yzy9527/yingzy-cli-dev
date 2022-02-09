@@ -284,10 +284,12 @@ class InitCommand extends Command {
             choices: [{
                 name: '项目',
                 value: TYPE_PROJECT
-            }, {
-                name: '组件',
-                value: TYPE_COMPONENT
-            }]
+            }
+            // , {
+            //     name: '组件',
+            //     value: TYPE_COMPONENT
+            // }
+            ]
         });
         const title = type === TYPE_PROJECT ? '项目' : '组件';
         this.template = this.template.filter(template => template.tag.includes(type));
