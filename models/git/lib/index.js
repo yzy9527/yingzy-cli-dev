@@ -66,6 +66,7 @@ class Git {
         refreshServer = false,
         refreshToken = false,
         refreshOwner = false,
+        refreshOssKey = false,
         buildCmd = '',
         prod = false,
         sshUser = '',
@@ -88,6 +89,7 @@ class Git {
         this.refreshServer = refreshServer; //是否重新选取远程仓库类型
         this.refreshToken = refreshToken; //是否重新设置远程仓库token
         this.refreshOwner = refreshOwner; //是否重新设置远程仓库类型
+        this.refreshOssKey = refreshOssKey;//是否重新设置oss鉴权口令
         this.branch = null; //本地开发分支
         this.buildCmd = buildCmd; //构建命令
         this.sshUser = sshUser; //服务器的用户名
@@ -569,11 +571,11 @@ pnpm-debug.log*
     }
 
     async checkAccount(gitPublish){
-        if(gitPublish==='oss'){
+        if(gitPublish==='oss') {
             const ossAuthKeyFile = this.createPath(OSS_AUTH_KEY_FILE);
             let ossAuthKey = readFile(ossAuthKeyFile);
-            if(!ossAuthKey){
-                const ossCheckCode = (await inquirer.prompt({
+            if (!ossAuthKey || this.refreshOssKey) {
+                ossAuthKey = (await inquirer.prompt({
                     type: 'input',
                     name: 'checkCode',
                     defaultValue: '',
@@ -591,9 +593,9 @@ pnpm-debug.log*
                     filter: function (v) {
                         return v;
                     }
-                })).checkCode
-                writeFile(ossAuthKeyFile, this.ossCheckCode);
-                log.success('ossAuthKey写入成功', `${this.ossCheckCode} -> ${ossAuthKeyFile}`);
+                })).checkCode;
+                writeFile(ossAuthKeyFile, ossAuthKey);
+                log.success('ossAuthKey写入成功', `${ossAuthKey} -> ${ossAuthKeyFile}`);
             }else {
                 log.success('ossAuthKey类型获取成功');
                 log.verbose('ossAuthKey', ossAuthKey)

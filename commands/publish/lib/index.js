@@ -18,7 +18,8 @@ class PublishCommand extends Command {
             prod: this._cmd.opts().prod,
             sshUser: this._cmd.opts().sshUser,
             sshIp: this._cmd.opts().sshIp,
-            sshPath: this._cmd.opts().sshPath
+            sshPath: this._cmd.opts().sshPath,
+            refreshOssKey: this._cmd.opts().refreshOssKey
         };
     }
 
