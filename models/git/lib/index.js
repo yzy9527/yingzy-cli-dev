@@ -154,7 +154,20 @@ class Git {
                 type: 'password',
                 name: 'token',
                 default: '',
-                message: '请将token复制到此处'
+                message: '请将token复制到此处',
+                validate: function (v) {
+                    const done = this.async();
+                    setTimeout(function () {
+                        if (!v) {
+                            done('token不能为空');
+                            return;
+                        }
+                        done(null, true);
+                    }, 0);
+                },
+                filter: function (v) {
+                    return v;
+                }
             })).token;
             writeFile(tokenPath, token);
             log.success('token写入成功', `${token} -> ${tokenPath}`);
