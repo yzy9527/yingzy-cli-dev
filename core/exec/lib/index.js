@@ -64,7 +64,7 @@ async function exec() {
             o._opts = cmd.opts(); //SON.stringify不能处理函数
             Object.keys(cmd).forEach(key => {
                 if (cmd.hasOwnProperty(key) && (!key.startsWith('_')) &&
-                    key !== 'parent') {
+                    key !== 'parent' && key !== 'options') {
                     o[key] = cmd[key];
                 }
             });
