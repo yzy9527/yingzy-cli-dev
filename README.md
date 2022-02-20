@@ -10,6 +10,22 @@
     npm i -g @yingzy-cli-dev/core
 ```
 
+```
+Usage: yingzy <command> [options]
+
+Options:
+  -V, --version                   output the version number
+  -d, --debug                     是否开启调试模式 (default: false)
+  -tp, --targetPath <targetPath>  是否指定本地文件调试 (default: "")
+  -h, --help                      display help for command
+
+Commands:
+  init [options] [projectName]
+  publish [options]
+  help [command]                  display help for command
+
+```
+
 #### 初始化项目
 
 ```
@@ -23,10 +39,3 @@
 ```
     yingzy publish
 ```
-
-#### 帮助
-
-```
-    yingzy help
-```
-
